@@ -5,15 +5,15 @@
 #include <map>
 using namespace std;
 
-vector<int> componentes_Conexas;
-vector<vector<int>> adyacencias;
-map<vector<int>,bool> puentes;// mapa de aristas a bool. 
 int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2, n, m;
+vector<int> componentesConexas;// Aqui alamcenaremos los tamanios de las distintas CC una vez "eliminados" los puentes
+vector<vector<int>> adyacencias;
+map<vector<int>,bool> puentes;// Mapa de aristas a bool. Si value de una arista es true, esta es puente en mi arbol DFS
 vector<int> estado;
 vector<int> esta2;
 vector<int> padres;
 
-void DFS(int v){
+void DFSPuentes(int v){
     estado[v]= EMPECE_A_VER;
     for(int u: adyacencias[v]){
         if (estado[u] == NO_LO_VI){
@@ -22,17 +22,17 @@ void DFS(int v){
             vector<int> temp1 = {u,v};
             vector<int> temp2 = {v,u};
 
-            puentes[temp1] = puentes[temp2] = true;
+            puentes[temp1] = puentes[temp2] = true; // Cuando una arista pasa a formar parte del arbol, la asumimos como puente hasta que se demuestre lo contrario.
 
-            DFS(u);
+            DFSPuentes(u);
         }
         else{
-            if(estado[u]==TERMINE_DE_VER)continue;
+            if(estado[u]==TERMINE_DE_VER)continue;// Si el nodo ya termino de ser visto, se habia llegado a el desde un nodo hijo y la backedge correspondiente ya fue tenida en cuenta
             if (u != padres[v]){    //Encontre Backedge.
                 int padre = padres[v];
                 int hijo = v;
 
-                while(hijo != u){// Asciendo por el arbol marcando las aristas como cubiertas
+                while(hijo != u){// Asciendo por el arbol marcando las aristas como cubiertas, es decir, no puentes.
                     puentes[{padre,hijo}] = puentes[{hijo,padre}] = false;
                     hijo = padre;
                     padre = padres[hijo];
@@ -47,7 +47,7 @@ int DFS2(int v, int tam_cc){
     int temp_tam=tam_cc;
     esta2[v]= EMPECE_A_VER;
     for(int u: adyacencias[v]){
-        if (esta2[u] == NO_LO_VI && !puentes[{u,v}]){
+        if (esta2[u] == NO_LO_VI && !puentes[{u,v}]){//Ignora los nodos conectados por aristas puente
             temp_tam++;
             temp_tam=DFS2(u,temp_tam);
         }
@@ -59,13 +59,13 @@ int DFS2(int v, int tam_cc){
 void armarComponentes(){
     for(int i = 1; i <= n; i ++){
         if (estado[i] == NO_LO_VI){
-            DFS (i);
+            DFSPuentes (i);
         }
     }
     for(int i = 1; i <= n; i ++){
         if(esta2[i] == NO_LO_VI){
            int tamCC = DFS2(i,1);
-           componentes_Conexas.push_back(tamCC);
+           componentesConexas.push_back(tamCC);
         }
     }
 }
@@ -78,7 +78,7 @@ double fact(int n){
     return res;
 }
 
-double combinatorio(int n){
+double combinatorio(int n){//Solo nos importa el combinatorio (n 2)
     if (n == 1) return 0;
     return (fact(n) / (fact(n-2)*2));
 }
@@ -104,8 +104,8 @@ int main(){
     armarComponentes();
 
     double ganar = 0;
-    for (int i = 0; i < componentes_Conexas.size(); i++){
-        ganar += combinatorio(componentes_Conexas[i]);
+    for (int i = 0; i < componentesConexas.size(); i++){
+        ganar += combinatorio(componentesConexas[i]);
     }
 
     double probPerder = 1 - (ganar/eleccionesTotales);
