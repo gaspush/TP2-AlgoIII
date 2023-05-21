@@ -15,27 +15,27 @@ vector<int> padres;
 
 void DFSPuentes(int v){
     estado[v]= EMPECE_A_VER;
-    for(int u: adyacencias[v]){
-        if (estado[u] == NO_LO_VI){
-            padres[u] = v;
+    for(int u: adyacencias[v]){  // O(m)
+        if (estado[u] == NO_LO_VI){ // O(1)
+            padres[u] = v; // O(1)
 
-            vector<int> temp1 = {u,v};
-            vector<int> temp2 = {v,u};
+            vector<int> temp1 = {u,v}; // O(1)
+            vector<int> temp2 = {v,u}; // O(1)
 
             puentes[temp1] = puentes[temp2] = true; // Cuando una arista pasa a formar parte del arbol, la asumimos como puente hasta que se demuestre lo contrario.
 
-            DFSPuentes(u);
+            DFSPuentes(u); // O(T) a calcular en c/caso, si todas las adyacencias son "no lo vi" [es decir una recta de nodos, por ejemplo] hago para cada adyacencia O(1) operaciones para marcar que son puentes todos. Todo es O(m)
         }
         else{
             if(estado[u]==TERMINE_DE_VER)continue;// Si el nodo ya termino de ser visto, se habia llegado a el desde un nodo hijo y la backedge correspondiente ya fue tenida en cuenta
             if (u != padres[v]){    //Encontre Backedge.
-                int padre = padres[v];
-                int hijo = v;
+                int padre = padres[v]; // O(1)
+                int hijo = v; // O(1)
 
-                while(hijo != u){// Asciendo por el arbol marcando las aristas como cubiertas, es decir, no puentes.
-                    puentes[{padre,hijo}] = puentes[{hijo,padre}] = false;
-                    hijo = padre;
-                    padre = padres[hijo];
+                while(hijo != u){// Asciendo por el arbol marcando las aristas como cubiertas, es decir, no puentes.  O(n) en peor caso subimos desde la hoja a la raíz pasando por todos los nodos intermedios
+                    puentes[{padre,hijo}] = puentes[{hijo,padre}] = false; // O(1)
+                    hijo = padre; // O(1)
+                    padre = padres[hijo]; // O(1)
                 }
             }
         }
@@ -69,7 +69,7 @@ void armarComponentes(){
         }
     }
 }
-
+/*
 double fact(int n){
     double res = 1;
     for (int i = 2; i <= n; i++){
@@ -77,10 +77,9 @@ double fact(int n){
     }
     return res;
 }
-
+*/
 double combinatorio(int n){//Solo nos importa el combinatorio (n 2)
-    if (n == 1) return 0;
-    return (fact(n) / (fact(n-2)*2));
+    return ((n-1)*n / (2));
 }
 
 int main(){
