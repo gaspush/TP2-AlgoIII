@@ -13,16 +13,17 @@ vector<int> estado;
 int tin; // ENTRO AL ÁRBOL EN QUÉ ITERACION 
 int low; // PUEDO VISITAR UN NODO ANTERIOR DEL ÁRBOL? SI EL VALOR DE CUANDO ENTRÓ N NO ES EL MISMO QUE EL VALOR QUE PUEDO VISITAR ES PORQUE VISITA UNO ANTERIOR
 int compConexa=0;
+int it=0;
             
 void marcarPuentes(int v, int p){ //re corre el grafo como dfs marcando las aristas puente.
     estado[v] = EMPECE_A_VER;
     it++;
-    tin[u] = low[u] = it;  // tin = iteración en la que entra al árbol ése nodo. Low = nodo más cercano a V que se puede alcanzar con ése nodo.
+    tin[v] = low[v] = it;  // tin = iteración en la que entra al árbol ése nodo. Low = nodo más cercano a V que se puede alcanzar con ése nodo.
     for(int u: adyacencias[v]){  // O(m)
         if(u == p) continue; //
         if (estado[u] == NO_LO_VI){
             
-            findBridge(u, v); //sigo bajando marcando en que iteración entran por primera vez
+            marcarPuentes(u, v); //sigo bajando marcando en que iteración entran por primera vez
             low[v] = min(low[u], low[v]);// O(1)
             
             if(low[u] > low[v]){ // El nodo hijo "u" sólo alcanza nodos posteriores, no hay backedge que cubra a V.
@@ -35,12 +36,11 @@ void marcarPuentes(int v, int p){ //re corre el grafo como dfs marcando las aris
         }
     }
 }
-
-int DFS(int v, int tam_cc){
+int DFS2(int v, int tam_cc){
     int temp_tam=tam_cc;
     esta2[v]= EMPECE_A_VER;
     for(int u: adyacencias[v]){
-        if (esta2[u] == NO_LO_VI && cubren(u)!=0){ //!puentes[{u,v}]){//Ignora los nodos conectados por aristas puente
+        if(estado[v]==NO_LO_VI && !puentes[{u, v}]){//!puentes[{u,v}]){//Ignora los nodos conectados por aristas puente
             temp_tam++;
             temp_tam=DFS2(u,temp_tam);
         }
@@ -48,10 +48,11 @@ int DFS(int v, int tam_cc){
     esta2[v]= TERMINE_DE_VER;
     return temp_tam;
 }
+
 void armarComponentes(){
     for(int i = 1; i <= n; i ++){
-        if(esta2[i] == NO_LO_VI){
-           int tamCC = DFS2(i,1);
+        if(estado[i] == NO_LO_VI){
+           int tamCC = DFS(i,1);
            componentesConexas.push_back(tamCC);
         }
     }
@@ -74,7 +75,7 @@ int main(){
     }
     for(int i = 1; i <= n; i ++){
         if (estado[i] == NO_LO_VI){
-            findBridge (i,0);
+            marcarPuentes (i,0);
         }
     }
     estado = vector<int>(n+1,NO_LO_VI);
