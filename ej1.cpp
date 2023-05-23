@@ -3,15 +3,18 @@
 #include <tuple>
 #include <iomanip>
 #include <map>
+// #include <math.h> lo usé para testear el setprecision
+
 using namespace std;
-//typedef long long ll;
+typedef long long ll;
+int tope =100000;
 
 int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2, n, m;
 vector<int> componentesConexas;// Aqui alamcenaremos los tamanios de las distintas CC una vez "eliminados" los puentes
 vector<vector<int>> adyacencias;
-map<vector<int>,bool> puentes;// Mapa de aristas a bool. Si value de una arista es true, esta es puente en mi arbol DFS
+map<pair<int,int>,bool> puentes;// Mapa de aristas a bool. Si value de una arista es true, esta es puente en mi arbol DFS
 vector<int> estado;
-vector<int> tin; // ENTRO AL ÁRBOL EN QUÉ ITERACION 
+vector<int> tin; // ENTRO AL ÁRBOL EN QUÉ ITERACION "time in node" 
 vector<int> low; // PUEDO VISITAR UN NODO ANTERIOR DEL ÁRBOL? SI EL VALOR DE CUANDO ENTRÓ N NO ES EL MISMO QUE EL VALOR QUE PUEDO VISITAR ES PORQUE VISITA UNO ANTERIOR
 int compConexa=0;
 int it=0;
@@ -19,7 +22,7 @@ int it=0;
 void marcarPuentes(int v, int p){ //re corre el grafo como dfs marcando las aristas puente.
     estado[v] = EMPECE_A_VER;
     it++;
-    tin[v] = low[v] = it;  // tin = iteración en la que entra al árbol ése nodo. Low = nodo más cercano a V que se puede alcanzar con ése nodo.
+    tin[v] = low[v] = it;  // tin = iteración en la que entra al árbol ése nodo. Low = nodo más cercano en "tiempo" a V que se puede alcanzar con ése nodo.
     for(int u: adyacencias[v]){  // O(m)
         if(u == p) continue;
         if (estado[u] == NO_LO_VI){
@@ -32,7 +35,7 @@ void marcarPuentes(int v, int p){ //re corre el grafo como dfs marcando las aris
         }
         else{
             low[v] = min(low[v], tin[u]); // actualizo el nodo más cercano que se puede alcanzar comparando con la backedge
-            
+            puentes[{u, v}] = puentes[{v, u}] = false;
         }
     }
 }
@@ -53,22 +56,30 @@ void armarComponentes(){
     for(int i = 1; i <= n; i ++){
         if(estado[i] == NO_LO_VI){
            int tamCC = DFS2(i,1);
+           
            componentesConexas.push_back(tamCC);
+           /*
+           for (int j=0; j<componentesConexas.size();j++){
+            cout << " " << componentesConexas[j] << " " << endl;
+               
+           }*/
+          
         }
     }
 }
-double combinatorio(int n){//Solo nos importa el combinatorio (n 2)
+ll combinatorio(int n){//Solo nos importa el combinatorio (n 2)
+    
     return ((n-1)*n / (2));
 }
 int main(){
     cin >> n >> m;
     adyacencias = vector<vector<int>>(n+1);
-    componentesConexas = vector<int>(n+1);
-    estado = vector<int>(n+1,NO_LO_VI);
-    tin=vector<int>(n+1);
-    low=vector<int>(n+1);
+    //componentesConexas = vector<int>(n+1);
+    estado = vector<int>(tope,NO_LO_VI);
+    tin=vector<int>(tope);
+    low=vector<int>(tope);
     
-    double eleccionesTotales = (n*(n-1)/2);
+    //ll eleccionesTotales =(n*(n-1)/2);
     
     while (m--){
         int u, v;
@@ -87,10 +98,17 @@ int main(){
 
     double ganar = 0;
     for (int i = 0; i < componentesConexas.size(); i++){
-        ganar += combinatorio(componentesConexas[i])/eleccionesTotales;
+        ganar += combinatorio(componentesConexas[i]);
     }
-
-    double probPerder = 1 - (ganar);
+    //cout << ganar << endl;
+    ganar=ganar/(1.0*n/2.0);
+    //cout << ganar << endl;
+    ganar=ganar/(1.0*(n-1.0));
+    //cout << ganar << endl;
+    
+    long double probPerder = (1.0 - ganar);
     cout << fixed << setprecision(5) << probPerder << endl;
     return 0;
 }
+
+
