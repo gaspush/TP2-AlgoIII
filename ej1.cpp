@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <map>
 using namespace std;
-typedef long long ll;
+//typedef long long ll;
 
 int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2, n, m;
 vector<int> componentesConexas;// Aqui alamcenaremos los tamanios de las distintas CC una vez "eliminados" los puentes
@@ -65,8 +65,8 @@ int main(){
     adyacencias = vector<vector<int>>(n+1);
     componentesConexas = vector<int>(n+1);
     estado = vector<int>(n+1,NO_LO_VI);
-    tin=vector<int>(n);
-    low=vector<int>(n);
+    tin=vector<int>(n+1);
+    low=vector<int>(n+1);
     
     double eleccionesTotales = (n*(n-1)/2);
     
