@@ -9,7 +9,8 @@ using namespace std;
 typedef long long ll;
 int tope =100000;
 
-int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2, n, m;
+int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2;
+ll n, m;
 vector<int> componentesConexas;// Aqui alamcenaremos los tamanios de las distintas CC una vez "eliminados" los puentes
 vector<vector<int>> adyacencias;
 map<pair<int,int>,bool> puentes;// Mapa de aristas a bool. Si value de una arista es true, esta es puente en mi arbol DFS
@@ -67,7 +68,7 @@ void armarComponentes(){
         }
     }
 }
-ll combinatorio(int n){//Solo nos importa el combinatorio (n 2)
+ll combinatorio(ll n){//Solo nos importa el combinatorio (n 2)
     
     return ((n-1)*n / (2));
 }
