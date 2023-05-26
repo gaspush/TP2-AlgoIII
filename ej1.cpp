@@ -97,7 +97,7 @@ int main(){
     estado = vector<int>(n+1,NO_LO_VI);
     armarComponentes();
 
-    double ganar = 0;
+    long double ganar = 0;
     for (int i = 0; i < componentesConexas.size(); i++){
         ganar += combinatorio(componentesConexas[i]);
     }
