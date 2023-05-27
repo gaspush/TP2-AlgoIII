@@ -14,14 +14,16 @@ typedef long long ll;
 typedef pair<double, pair<nodo, nodo>> arista;
 
 
-int r, n, w, c, u, v;
+int r, n, c, UTP,fibra_Optica, modems;
+vector<pair<long double,long double>> gastosC;
+long double gastoUTP, gastoFibra;
 vector <nodo> nodos;
 vector<arista> aristas; // cada arista es un par <pesoArista,(u,v)>
 map<nodo,nodo> padre;
 map<nodo,int> rango;
 int limitN=1000;
 int limitR=10000;
-bool sentido= w<n;
+
 
 double distancia ( nodo u, nodo v){ //  sospecho que los límites del tipo "double" van a ser un problema a futuro por el pow
     if (u.first==v.first || u.second == v.second) return abs(u.first - v.first + u.second - v.second); //alguna coord es igual, ergo, se anula
@@ -68,15 +70,21 @@ bool peso (arista x, arista y){
 
 double Kruskal (int n, vector<arista> a){
     for(int i = 0; i < n; ++i) makeSet(nodos[i]); // creo los el bosque, c/u es su representante
-    
+    //TO DO sort que funcione
     sort(a.begin(),a.end(),peso); // en sort el 3er param. es "con que criterio". Lo podemos declarar como una funcion aparte, lo hice como 
     // comparar los pesos de las aristas (las aristas son {peso, {u,v}})  no funciona, no sé porqué. La documentación de sort dice que debería andar
     
-    int maxIt = n-1;  
+    int maxIt = n-modems;  
     for (auto arista : a){
         nodo u = findSet(arista.second.first);
         nodo v = findSet(arista.second.second);
         if (u==v) continue;
+        if (arista.first<=r){
+            gastoUTP+=arista.first*UTP;  
+        } else {
+            gastoFibra+=arista.first*fibra_Optica;
+        }
+        
         unionSet(u,v);
         maxIt--;
         if (maxIt==0) break; // como genero un árbol al poner la arista numero n-1 por invariante de Kruskal ya está.
@@ -87,15 +95,12 @@ double Kruskal (int n, vector<arista> a){
 
 
 int main(){
-    
+// 1metro=100cm    
     cin >> c;
     for (int it=0; it< c;it++){
-        cin >> n >> r >> w >> u >> v;
-        
-        int UTP = u;
-        int fibra_Optica = v;
-        int modems = w;
-        
+        cin >> n >> r >> modems >> UTP >> fibra_Optica;
+        gastoUTP=0;
+        gastoFibra=0;
          for(int i=0; i<n ;i++){
              int x;
              int y;
@@ -105,12 +110,23 @@ int main(){
          }
         armarAristas(nodos);
         Kruskal(n,aristas);
-        cout << "Caso #" << it+1 << ":"<<"Resultado A" << "Resultado B" <<endl;
+        pair<long double, long double> temp= make_pair(gastoUTP,gastoFibra);
+        gastosC.push_back(temp);
+       
+    }
+    for (int i=0;i<c;i++){
+        cout << "Caso #"<< i << ":";
+        cout << fixed << setprecision(3) << gastosC[i].first << " ";
+        cout << fixed << setprecision(3) << gastosC[i].second << endl;
     }
     return 0;
 }
 
-// cosas a tener en cuenta para implementación de Kruskal e informe:
-//Use of Kruskal’s algorithm’s invariant: After the Kth iteration, we have a minimum spanning 
-//forest of n-k connected components. This is, among all the spanning forests of n-k connected components, the one that Kruskal forms has the least weight. 
-//This is important, for example, if we wish to find a minimum spanning forest using only k edges.
+/* cosas a tener en cuenta para implementación de Kruskal e informe:
+Use of Kruskal’s algorithm’s invariant: After the Kth iteration, we have a minimum spanning 
+forest of n-k connected components. This is, among all the spanning forests of n-k connected components, the one that Kruskal forms has the least weight. 
+This is important, for example, if we wish to find a minimum spanning forest using only k edges.*/
+// https://fedelebron.com/a-dense-version-of-kruskals-algorithm
+
+
+
