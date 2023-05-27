@@ -30,12 +30,11 @@ double distancia ( nodo u, nodo v){
 }
 
 void armarAristas(vector<pair<int,int>> nodos){ // esto ya cuesta O(n^2) por lo tanto la implementación de Kruskal que sirve es la que cuesta O(n^2)
-    int tope= (nodos.size()-1)/2;
-    for (int i=0; i< nodos.size();i++){
-        nodo u=nodos[i];
-        for (int j=0; j<i;j++){  //No sube complejidad son n aristas para n nodos => n^2
-             nodo v = nodos[j];
-            double d=distancia(u,v);
+    for (int i = 0; i < nodos.size(); i++){
+        nodo u = nodos[i];
+        for (int j = 0; j < i; j++){  //No sube complejidad son n aristas para n nodos => n^2
+            nodo v = nodos[j];
+            double d = distancia(u,v);
             
             arista temp = {d,{u,v}};
             aristas.push_back(temp);          
@@ -79,7 +78,7 @@ double Kruskal (int n, vector<arista> a){
         }
         unionSet(u,v);
         maxIt--;
-        if (maxIt==0) break; // como genero un árbol al poner la arista numero n-1 por invariante de Kruskal ya está.
+        if (maxIt==0) break; // como genero un árbol al poner la arista numero n-modems por invariante de Kruskal ya está.
     }    
     return 0;
 }
@@ -110,7 +109,7 @@ int main(){
        
     }
     for (int i=0;i<c;i++){
-        cout << "Caso #" << i << ":" << fixed << setprecision(3) << gastosC[i].first << " " << gastosC[i].second << endl;
+        cout << "Caso #" << i+1 << ":" << fixed << setprecision(3) << gastosC[i].first << " " << gastosC[i].second << endl;
     }
     return 0;
 }
