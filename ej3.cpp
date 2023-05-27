@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <vector>
 #include <tuple>
 #include <iomanip>
@@ -101,6 +102,10 @@ int main(){
         cin >> n >> r >> modems >> UTP >> fibra_Optica;
         gastoUTP=0;
         gastoFibra=0;
+        nodos.clear();
+        aristas.clear();
+        padre.clear();
+        rango.clear();
          for(int i=0; i<n ;i++){
              int x;
              int y;
@@ -110,14 +115,12 @@ int main(){
          }
         armarAristas(nodos);
         Kruskal(n,aristas);
-        pair<long double, long double> temp= make_pair(gastoUTP,gastoFibra);
+        pair<long double, long double> temp = make_pair(gastoUTP,gastoFibra);
         gastosC.push_back(temp);
        
     }
     for (int i=0;i<c;i++){
-        cout << "Caso #"<< i << ":";
-        cout << fixed << setprecision(3) << gastosC[i].first << " ";
-        cout << fixed << setprecision(3) << gastosC[i].second << endl;
+        cout << "Caso #" << i << ":" << fixed << setprecision(3) << gastosC[i].first << " " << gastosC[i].second << endl;
     }
     return 0;
 }
