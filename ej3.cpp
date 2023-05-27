@@ -14,7 +14,6 @@ typedef pair<int,int> nodo;
 typedef long long ll;
 typedef pair<double, pair<nodo, nodo>> arista;
 
-
 int r, n, c, UTP,fibra_Optica, modems;
 vector<pair<long double,long double>> gastosC;
 long double gastoUTP, gastoFibra;
@@ -25,9 +24,8 @@ map<nodo,int> rango;
 int limitN=1000;
 int limitR=10000;
 
-
-double distancia ( nodo u, nodo v){ //  sospecho que los límites del tipo "double" van a ser un problema a futuro por el pow
-    if (u.first==v.first || u.second == v.second) return abs(u.first - v.first + u.second - v.second); //alguna coord es igual, ergo, se anula
+double distancia ( nodo u, nodo v){
+    if (u.first==v.first || u.second == v.second) return abs(u.first - v.first + u.second - v.second); //Si estan alineados, nos ahorramos unas cuentas
     return (sqrt(pow(u.second - v.second,2) + pow(u.first - v.first ,2))); //dif triangular, distancia de 2 ptos en un plano
 }
 
@@ -35,10 +33,8 @@ void armarAristas(vector<pair<int,int>> nodos){ // esto ya cuesta O(n^2) por lo 
     int tope= (nodos.size()-1)/2;
     for (int i=0; i< nodos.size();i++){
         nodo u=nodos[i];
-        for (int j=0; j<i;j++){  //acá mete {u,v}  y {v,u}, no debería ahora estoy quemado para parchear algo así. 
-             //No sube complejidad son n aristas para n nodos => n^2
+        for (int j=0; j<i;j++){  //No sube complejidad son n aristas para n nodos => n^2
              nodo v = nodos[j];
-            // if (u==v) continue;
             double d=distancia(u,v);
             
             arista temp = {d,{u,v}};
@@ -47,11 +43,13 @@ void armarAristas(vector<pair<int,int>> nodos){ // esto ya cuesta O(n^2) por lo 
         }
     }
 }
+
 void makeSet(nodo u){
     padre[u]=u;
     rango[u]=0;
     
 }
+
 nodo findSet(nodo x) {
   if (x != padre[x]) padre[x] = findSet(padre[x]);
   return padre[x];
@@ -67,13 +65,9 @@ bool peso (arista x, arista y){
     return x.first <= y.first;
 }
 
-
-
 double Kruskal (int n, vector<arista> a){
     for(int i = 0; i < n; ++i) makeSet(nodos[i]); // creo los el bosque, c/u es su representante
-    //TO DO sort que funcione
-    sort(a.begin(),a.end(),peso); // en sort el 3er param. es "con que criterio". Lo podemos declarar como una funcion aparte, lo hice como 
-    // comparar los pesos de las aristas (las aristas son {peso, {u,v}})  no funciona, no sé porqué. La documentación de sort dice que debería andar
+    sort(a.begin(),a.end(),peso);
     
     int maxIt = n-modems;  
     for (auto arista : a){
@@ -85,7 +79,6 @@ double Kruskal (int n, vector<arista> a){
         } else {
             gastoFibra+=arista.first*fibra_Optica;
         }
-        
         unionSet(u,v);
         maxIt--;
         if (maxIt==0) break; // como genero un árbol al poner la arista numero n-1 por invariante de Kruskal ya está.
@@ -95,8 +88,8 @@ double Kruskal (int n, vector<arista> a){
 }
 
 
-int main(){
-// 1metro=100cm    
+
+int main(){ 
     cin >> c;
     for (int it=0; it< c;it++){
         cin >> n >> r >> modems >> UTP >> fibra_Optica;
@@ -130,6 +123,3 @@ Use of Kruskal’s algorithm’s invariant: After the Kth iteration, we have a m
 forest of n-k connected components. This is, among all the spanning forests of n-k connected components, the one that Kruskal forms has the least weight. 
 This is important, for example, if we wish to find a minimum spanning forest using only k edges.*/
 // https://fedelebron.com/a-dense-version-of-kruskals-algorithm
-
-
-
