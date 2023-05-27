@@ -7,17 +7,14 @@
 
 using namespace std;
 typedef long long ll;
-int tope =100000;
 
-int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2;
-ll n, m;
+int NO_LO_VI = 0, EMPECE_A_VER = 1,TERMINE_DE_VER = 2, n, m;
 vector<int> componentesConexas;// Aqui alamcenaremos los tamanios de las distintas CC una vez "eliminados" los puentes
 vector<vector<int>> adyacencias;
 map<pair<int,int>,bool> puentes;// Mapa de aristas a bool. Si value de una arista es true, esta es puente en mi arbol DFS
 vector<int> estado;
 vector<int> tin; // ENTRO AL ÁRBOL EN QUÉ ITERACION "time in node" 
 vector<int> low; // PUEDO VISITAR UN NODO ANTERIOR DEL ÁRBOL? SI EL VALOR DE CUANDO ENTRÓ N NO ES EL MISMO QUE EL VALOR QUE PUEDO VISITAR ES PORQUE VISITA UNO ANTERIOR
-int compConexa=0;
 int it=0;
             
 void marcarPuentes(int v, int p){ //re corre el grafo como dfs marcando las aristas puente.
@@ -36,7 +33,6 @@ void marcarPuentes(int v, int p){ //re corre el grafo como dfs marcando las aris
         }
         else{
             low[v] = min(low[v], tin[u]); // actualizo el nodo más cercano que se puede alcanzar comparando con la backedge
-            puentes[{u, v}] = puentes[{v, u}] = false;
         }
     }
 }
@@ -59,28 +55,21 @@ void armarComponentes(){
            int tamCC = DFS2(i,1);
            
            componentesConexas.push_back(tamCC);
-           /*
-           for (int j=0; j<componentesConexas.size();j++){
-            cout << " " << componentesConexas[j] << " " << endl;
-               
-           }*/
           
         }
     }
 }
-ll combinatorio(ll n){//Solo nos importa el combinatorio (n 2)
+ll combinatorio(ll t){//Solo nos importa el combinatorio (n 2), recibe un long long porque sino hay overflow, si le paso un int c++ lo extiende
     
-    return ((n-1)*n / (2));
+    return (t-1)*t;
 }
 int main(){
     cin >> n >> m;
     adyacencias = vector<vector<int>>(n+1);
-    //componentesConexas = vector<int>(n+1);
-    estado = vector<int>(tope,NO_LO_VI);
-    tin=vector<int>(tope);
-    low=vector<int>(tope);
+    estado = vector<int>(n+1,NO_LO_VI);
+    tin=vector<int>(n+1);
+    low=vector<int>(n+1);
     
-    //ll eleccionesTotales =(n*(n-1)/2);
     
     while (m--){
         int u, v;
@@ -97,19 +86,19 @@ int main(){
     estado = vector<int>(n+1,NO_LO_VI);
     armarComponentes();
 
-    long double ganar = 0;
+    ll ganar = 0;
     for (int i = 0; i < componentesConexas.size(); i++){
         ganar += combinatorio(componentesConexas[i]);
     }
-    //cout << ganar << endl;
-    ganar=ganar/(1.0*n/2.0);
-    //cout << ganar << endl;
-    ganar=ganar/(1.0*(n-1.0));
-    //cout << ganar << endl;
-    
-    long double probPerder = (1.0 - ganar);
+
+    long double probPerder = 1.0 - 1.0*ganar/(1.0*n*(1.0*n-1));
     cout << fixed << setprecision(5) << probPerder << endl;
+    
+    
     return 0;
 }
+
+
+
 
 
