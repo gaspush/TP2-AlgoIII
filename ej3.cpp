@@ -38,16 +38,14 @@ void armarAristas(vector<pair<int,int>> nodos){ // esto ya cuesta O(n^2) por lo 
             double d=distancia(u,v);
             
             arista temp = {d,{u,v}};
-            aristas.push_back(temp);
-          
+            aristas.push_back(temp);          
         }
     }
 }
 
 void makeSet(nodo u){
     padre[u]=u;
-    rango[u]=0;
-    
+    rango[u]=0;    
 }
 
 nodo findSet(nodo x) {
@@ -82,8 +80,7 @@ double Kruskal (int n, vector<arista> a){
         unionSet(u,v);
         maxIt--;
         if (maxIt==0) break; // como genero un árbol al poner la arista numero n-1 por invariante de Kruskal ya está.
-    }
-    
+    }    
     return 0;
 }
 
@@ -99,13 +96,13 @@ int main(){
         aristas.clear();
         padre.clear();
         rango.clear();
-         for(int i=0; i<n ;i++){
-             int x;
-             int y;
-             
-             cin>> x >> y;
-             nodos.push_back({x,y});
-         }
+        for(int i=0; i<n ;i++){
+            int x;
+            int y;
+            
+            cin>> x >> y;
+            nodos.push_back({x,y});
+        }
         armarAristas(nodos);
         Kruskal(n,aristas);
         pair<long double, long double> temp = make_pair(gastoUTP,gastoFibra);
