@@ -11,10 +11,18 @@
 using namespace std;
 vector<vector<int>> adyacencias;
 vector<vector<int>> adyacenciasT;
-vector<vector<int>> compFC;
+vector<pair<int,vector<int>>> compFC;
 vector<bool> visitados;
 stack<int> S, ST;
 long n, m;
+
+bool pertence(vector<int>& vec, int x){
+    bool res = false;
+    for(int i = 0; i < vec.size(); i++){
+        if (vec[i] == x) return true;
+    }
+    return false;
+}
 
 void DFS(int nodo){
     visitados[nodo] = true;
@@ -54,6 +62,7 @@ int main(){
 
     for(int i = 1; i <= n; i++){
         if(!visitados[i]) DFS(i);
+
     }
 
     visitados = vector<bool>(n+1,false);
@@ -67,16 +76,33 @@ int main(){
             DFST(nodo);
 
             vector<int> aux;
+            vector<int> vecinos;
 
             while(!ST.empty()){
                 int next = ST.top();
                 ST.pop();
                 aux.push_back(next);
             }
-            compFC.push_back(aux);
+
+            int menor = aux[0];
+            for (int i = 0; i < aux.size(); i++){
+                int nodotemp = aux[i];
+                if (nodotemp < menor) menor = nodotemp;
+                for (int j = 0; j < adyacencias[nodotemp].size(); j++){                    
+                    int potencial = adyacencias[nodotemp][j];
+                    if (pertence(vecinos,potencial) || pertence(aux,potencial)) break;
+                    vecinos.push_back(potencial);
+                }                
+            }
+
+            pair<int,vector<int>> par = make_pair(menor,vecinos);
+            compFC.push_back(par);
             aux.clear();
+            vecinos.clear();
         }
     }
+
     
+
     return 0;
 }
