@@ -1,121 +1,129 @@
+//#include <bits/stdc++.h>
 #include <iostream>
-#include <stdio.h>
+#include <iomanip>
 #include <vector>
 #include <tuple>
-#include <iomanip>
-#include <map>
-#include <cmath>
 #include <math.h>
 #include <algorithm>
 
 using namespace std;
 
-typedef pair<int,int> nodo;
-typedef long long ll;
-typedef pair<double, pair<nodo, nodo>> arista;
 
-int r, n, c, UTP,fibra_Optica, modems;
-vector<pair<long double,long double>> gastosC;
-long double gastoUTP, gastoFibra;
-vector <nodo> nodos;
-vector<arista> aristas; // cada arista es un par <pesoArista,(u,v)>
-map<nodo,nodo> padre;
-map<nodo,int> rango;
-int limitN=1000;
-int limitR=10000;
+int n,r, UTP,fibra_Optica, modems, cantCasos, caso;
+double gastoUTP, gastoFibra;
 
-double distancia ( nodo u, nodo v){
-    if (u.first==v.first || u.second == v.second) return abs(u.first - v.first + u.second - v.second); //Si estan alineados, nos ahorramos unas cuentas
-    return (sqrt(pow(u.second - v.second,2) + pow(u.first - v.first ,2))); //dif triangular, distancia de 2 ptos en un plano
+vector <tuple<double,int,int,int>>  E;
+vector<vector<int>> nodos;
+
+
+double distancia(double x0, double x1, double y0, double y1) {
+    double deltaX = x0 - y0;
+    double deltaY = x1 - y1;
+
+    return std::sqrt(deltaX * deltaX + deltaY * deltaY);
 }
 
-void armarAristas(vector<pair<int,int>> nodos){ // esto ya cuesta O(n^2) por lo tanto la implementación de Kruskal que sirve es la que cuesta O(n^2)
+void armarAristas(){
+    //vector<tuple<double,int,int, int>> E;
+    double cost; // precio del cable
+    int tipoDeCable; // 0 si es UTP, 1 si es Fibra Optica
     for (int i = 0; i < nodos.size(); i++){
-        nodo u = nodos[i];
-        for (int j = 0; j < i; j++){  //No sube complejidad son n aristas para n nodos => n^2
-            nodo v = nodos[j];
-            double d = distancia(u,v);
-            
-            arista temp = {d,{u,v}};
-            aristas.push_back(temp);          
+        for (int j = i+1; j < nodos.size(); j++){
+            if (i!=j){
+                int x1=nodos[i][0];
+                int y1=nodos[i][1];
+
+                int x2=nodos[j][0];
+                int y2=nodos[j][1];
+                double d = distancia(x1,y1,x2,y2);
+                if (d<=r){
+                    cost = UTP*d;
+                    tipoDeCable = 0;
+                }else{
+                    cost = fibra_Optica*d;
+                    tipoDeCable = 1;
+                }
+                E.emplace_back(cost,i,j, tipoDeCable);
+            }
         }
+
     }
 }
+struct DSU{
 
-void makeSet(nodo u){
-    padre[u]=u;
-    rango[u]=0;    
+    DSU(int n){
+        padre = rank = vector<int>(n);
+        for(int v = 0; v < n; v++) padre[v] = v;
+    }
+
+    int find(int v){
+        if(v == padre[v]) return v;
+        return padre[v] = find(padre[v]);
+    }
+
+    void unite(int u, int v){
+        u = find(u), v = find(v);
+        if(u == v) return;
+        if(rank[u] < rank[v]) swap(u,v);
+        padre[v] = padre[u];
+        rank[u] = max(rank[u],rank[v]+1);
+    }
+
+    vector<int> padre;
+    vector<int> rank;
+};
+bool peso (const tuple<double,int,int,int>& x, const tuple<double,int,int,int>& y){
+    return get<0>(x) <= get<0>(y);
 }
 
-nodo findSet(nodo x) {
-  if (x != padre[x]) padre[x] = findSet(padre[x]);
-  return padre[x];
-}
-
-void unionSet(nodo u, nodo v){
-    if (rango[u] > rango[v]) padre[v] = u;
-    else padre[u] = v;
-    if (rango[u] == rango[v]) ++rango[v];
-}
-
-bool peso (arista x, arista y){
-    return x.first <= y.first;
-}
-
-double Kruskal (int n, vector<arista> a){
-    for(int i = 0; i < n; ++i) makeSet(nodos[i]); // creo los el bosque, c/u es su representante
-    sort(a.begin(),a.end(),peso);
-    
-    int maxIt = n-modems;  
-    for (auto arista : a){
-        nodo u = findSet(arista.second.first);
-        nodo v = findSet(arista.second.second);
-        if (u==v) continue;
-        if (arista.first<=r){
-            gastoUTP+=arista.first*UTP;  
-        } else {
-            gastoFibra+=arista.first*fibra_Optica;
+void kruskal(){
+    sort(E.begin(),E.end(),peso);
+    int aristas = 0;
+    int componentes=n;
+    DSU dsu(n);
+    for(auto actualArista : E){
+        double c = get<0>(actualArista);
+        int u = get<1>(actualArista);
+        int v = get<2>(actualArista);
+        int t = get<3>(actualArista);
+        //si (u,v) es arista segura
+        if(dsu.find(u) != dsu.find(v)){
+            // agregar
+            dsu.unite(u,v);
+            if (t){
+                gastoFibra+=c;
+            }else{
+                gastoUTP+=c;
+            }
+            aristas++;
+            componentes--;
+            if (componentes==modems) break;
         }
-        unionSet(u,v);
-        maxIt--;
-        if (maxIt==0) break; // como genero un árbol al poner la arista numero n-modems por invariante de Kruskal ya está.
-    }    
-    return 0;
+    }
+    if(aristas == n-modems) cout << "Caso #" << caso+1 << ": " << fixed << setprecision(3) << gastoUTP << " " << gastoFibra << endl;
+    else cout<<"IMPOSSIBLE\n";
 }
 
-
-
-int main(){ 
-    cin >> c;
-    for (int it=0; it< c;it++){
+int main() {
+    cin >> cantCasos;
+    for (int it=0; it< cantCasos;it++){
+        caso=it;
         cin >> n >> r >> modems >> UTP >> fibra_Optica;
         gastoUTP=0;
         gastoFibra=0;
-        nodos.clear();
-        aristas.clear();
-        padre.clear();
-        rango.clear();
+
         for(int i=0; i<n ;i++){
             int x;
             int y;
-            
+
             cin>> x >> y;
             nodos.push_back({x,y});
         }
-        armarAristas(nodos);
-        Kruskal(n,aristas);
-        pair<long double, long double> temp = make_pair(gastoUTP,gastoFibra);
-        gastosC.push_back(temp);
-       
-    }
-    for (int i=0;i<c;i++){
-        cout << "Caso #" << i+1 << ":" << fixed << setprecision(3) << gastosC[i].first << " " << gastosC[i].second << endl;
+        armarAristas();
+        kruskal();
+        nodos.clear();
+        E.clear();
+
     }
     return 0;
 }
-
-/* cosas a tener en cuenta para implementación de Kruskal e informe:
-Use of Kruskal’s algorithm’s invariant: After the Kth iteration, we have a minimum spanning 
-forest of n-k connected components. This is, among all the spanning forests of n-k connected components, the one that Kruskal forms has the least weight. 
-This is important, for example, if we wish to find a minimum spanning forest using only k edges.*/
-// https://fedelebron.com/a-dense-version-of-kruskals-algorithm
